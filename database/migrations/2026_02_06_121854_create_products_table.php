@@ -13,7 +13,16 @@ return new class extends Migration
     {
         Schema::create('products', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('category_id')->nullable()->constrained('categories')->nullOnDelete();
+            $table->string('code')->unique();
+            $table->string('name');
+            $table->text('description')->nullable();
+            $table->text('image_url')->nullable();
+            $table->decimal('price', 10, 2);
+            $table->boolean('is_available')->default(true);
+            $table->integer('stock')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
