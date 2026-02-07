@@ -2,64 +2,73 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreAddressRequest;
+use App\Http\Requests\UpdateAddressRequest;
+use App\Http\Resources\AddressResource;
 use App\Models\Address;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
 
 class AddressController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request): AnonymousResourceCollection
     {
-        //
-    }
+        $addresses = Address::query()
+            ->where('user_id', $request->user()->id)
+            ->latest()
+            ->paginate(15);
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
+        return AddressResource::collection($addresses);
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreAddressRequest $request): AddressResource
     {
-        //
+        $address = Address::create([
+            ...$request->validated(),
+            'user_id' => $request->user()->id,
+        ]);
+
+        return new AddressResource($address);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Address $address)
+    public function show(Address $address): AddressResource
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Address $address)
-    {
-        //
+        $this->authorize('view', $address);
+        
+        return new AddressResource($address);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Address $address)
+    public function update(UpdateAddressRequest $request, Address $address): AddressResource
     {
-        //
+        $this->authorize('update', $address);
+
+        $address->update($request->validated());
+
+        return new AddressResource($address);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Address $address)
+    public function destroy(Address $address): Response
     {
-        //
+        $this->authorize('delete', $address);
+
+        $address->delete();
+
+        return response()->noContent();
     }
 }
