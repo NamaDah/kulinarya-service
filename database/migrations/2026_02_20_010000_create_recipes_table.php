@@ -11,16 +11,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('products', function (Blueprint $table) {
+        Schema::create('recipes', function (Blueprint $table) {
             $table->id();
             $table->foreignId('category_id')->constrained()->cascadeOnDelete();
-            $table->string('name');
+            $table->string('title');
             $table->string('slug')->unique();
             $table->text('description')->nullable();
-            $table->decimal('price', 10, 2);
             $table->string('image_url')->nullable();
-            $table->string('unit')->default('piece');
-            $table->boolean('in_stock')->default(true);
+            $table->string('video_url')->nullable();
+            $table->integer('prep_time_minutes')->default(0);
+            $table->integer('cook_time_minutes')->default(0);
+            $table->integer('servings')->default(2);
+            $table->enum('cuisine_type', ['chinese', 'japanese', 'korean']);
             $table->timestamps();
         });
     }
@@ -30,6 +32,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('products');
+        Schema::dropIfExists('recipes');
     }
 };

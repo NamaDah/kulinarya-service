@@ -7,24 +7,27 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class Product extends Model
+class Recipe extends Model
 {
     use HasFactory;
 
     protected $fillable = [
         'category_id',
-        'name',
+        'title',
         'slug',
         'description',
-        'price',
         'image_url',
-        'unit',
-        'in_stock',
+        'video_url',
+        'prep_time_minutes',
+        'cook_time_minutes',
+        'servings',
+        'cuisine_type',
     ];
 
     protected $casts = [
-        'price' => 'decimal:2',
-        'in_stock' => 'boolean',
+        'prep_time_minutes' => 'integer',
+        'cook_time_minutes' => 'integer',
+        'servings' => 'integer',
     ];
 
     public function category(): BelongsTo
@@ -32,7 +35,7 @@ class Product extends Model
         return $this->belongsTo(Category::class);
     }
 
-    public function recipeIngredients(): HasMany
+    public function ingredients(): HasMany
     {
         return $this->hasMany(RecipeIngredient::class);
     }

@@ -5,22 +5,19 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class OrderProduct extends Model
+class RecipeIngredient extends Model
 {
     protected $fillable = [
-        'order_id',
+        'recipe_id',
         'product_id',
+        'name',
         'quantity',
-        'unit_price',
+        'unit',
     ];
 
-    protected $casts = [
-        'unit_price' => 'decimal:2',
-    ];
-
-    public function order(): BelongsTo
+    public function recipe(): BelongsTo
     {
-        return $this->belongsTo(Order::class);
+        return $this->belongsTo(Recipe::class);
     }
 
     public function product(): BelongsTo
