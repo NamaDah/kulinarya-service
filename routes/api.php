@@ -23,6 +23,6 @@ Route::get('/recipes/featured', [RecipeController::class, 'featured']);
 Route::get('/recipes/{slug}', [RecipeController::class, 'show']);
 
 // Admin API routes
-Route::prefix('admin')->group(function () {
+Route::prefix('admin')->middleware(['auth:sanctum', 'admin'])->group(function () {
     Route::apiResource('products', AdminProductController::class);
 });
