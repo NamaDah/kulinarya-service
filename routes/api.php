@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\AdminProductController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\RecipeController;
@@ -20,3 +21,8 @@ Route::get('/products/{slug}', [ProductController::class, 'show']);
 Route::get('/recipes', [RecipeController::class, 'index']);
 Route::get('/recipes/featured', [RecipeController::class, 'featured']);
 Route::get('/recipes/{slug}', [RecipeController::class, 'show']);
+
+// Admin API routes
+Route::prefix('admin')->group(function () {
+    Route::apiResource('products', AdminProductController::class);
+});
