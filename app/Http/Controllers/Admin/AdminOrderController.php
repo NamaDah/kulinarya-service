@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Order;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class AdminOrderController extends Controller
 {
@@ -67,20 +68,39 @@ class AdminOrderController extends Controller
     public function updateStatus(Request $request, Order $order): JsonResponse
     {
         $request->validate([
-            'status' => ['required', 'in:pending,processing,completed,cancelled'],
+            'status' => ['required', 'in:pending,processing,confirmed,shipped,delivered,cancelled'],
         ]);
 
         $order->update([
             'status' => $request->input('status'),
         ]);
 
-        return response()->json([
-            'message' => 'Order status updated successfully.',
-            'order' => [
-                'id' => $order->id,
-                'status' => $order->status,
-                'payment_status' => $order->payment_status,
-            ],
-        ]);
+        try {
+            return response()->json([
+                'message' => 'Order status updated successfully.',
+                'order' => [
+                    'id' => $order->id,
+                    'status' => $order->status,
+                    'payment_status' => $order->payment_status,
+                ],
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Failed to update order status', [
+                'message' => $e->getMessage(),
+            ]);
+
+            return response()->json([
+                'message' => 'Failed to update order status.',
+            ], 500);
+        }
+
+        // return response()->json([
+        //     'message' => 'Order status updated successfully.',
+        //     'order' => [
+        //         'id' => $order->id,
+        //         'status' => $order->status,
+        //         'payment_status' => $order->payment_status,
+        //     ],
+        // ]);
     }
 }
