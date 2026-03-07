@@ -19,6 +19,8 @@ class OrderController extends Controller
     {
         $user = $request->user();
         $items = $request->validated()['items'];
+        // dd($request);
+        $address = $request->address;
 
         // Fetch products and validate stock
         $productIds = collect($items)->pluck('product_id')->toArray();
@@ -34,11 +36,12 @@ class OrderController extends Controller
         }
 
         // Create order in a transaction
-        $order = DB::transaction(function () use ($user, $items, $products) {
+        $order = DB::transaction(function () use ($user, $items, $products, $address) {
             $totalAmount = 0;
 
             $order = Order::create([
                 'user_id' => $user->id,
+                'address' => $address,
                 'status' => 'pending',
                 'payment_status' => 'unpaid',
                 'total_amount' => 0,
@@ -73,6 +76,7 @@ class OrderController extends Controller
             'order' => [
                 'id' => $order->id,
                 'status' => $order->status,
+                'address' => $order->address,
                 'payment_status' => $order->payment_status,
                 'total_amount' => $order->total_amount,
                 'snap_token' => $payment['snap_token'],
@@ -117,6 +121,7 @@ class OrderController extends Controller
         return response()->json([
             'id' => $order->id,
             'status' => $order->status,
+            'address' => $order->address,
             'payment_status' => $order->payment_status,
             'payment_reference' => $order->payment_reference,
             'snap_token' => $order->snap_token,

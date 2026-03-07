@@ -50,6 +50,7 @@ class PaymentService
         $payload = [
             'transaction_details' => [
                 'order_id' => 'KUL-' . $order->id . '-' . time(),
+                'address' => $order->address,
                 'gross_amount' => $grossAmount,
             ],
             'item_details' => $itemDetails,
