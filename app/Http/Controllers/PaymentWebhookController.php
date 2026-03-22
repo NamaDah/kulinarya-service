@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\PaymentStatusUpdated;
 use App\Models\Order;
 use App\Services\PaymentService;
 use Illuminate\Http\JsonResponse;
@@ -71,6 +72,8 @@ class PaymentWebhookController extends Controller
                 'status' => 'cancelled',
             ]);
         }
+
+        event(new PaymentStatusUpdated($order->id, $order->payment_status));
 
         Log::info('Midtrans webhook processed', [
             'order_id' => $order->id,
