@@ -17,10 +17,10 @@ class MessageController extends Controller
     {
         $userId = $request->user()->id;
 
-        // Allow access if user is the order owner, assigned driver, or admin
+        // Allow access if user is order owner, assigned driver, or admin
         if (
-            $order->user_id !== $userId &&
-            $order->driver_id !== $userId &&
+            $order->user_id != $userId &&
+            $order->driver_id != $userId &&
             $request->user()->role !== 'admin'
         ) {
             return response()->json(['message' => 'Forbidden.'], 403);
@@ -58,12 +58,20 @@ class MessageController extends Controller
     {
         $userId = $request->user()->id;
 
+        \Log::info('MessageController@store called', [
+            'userId' => $userId,
+            'order_user_id' => $order->user_id,
+            'order_driver_id' => $order->driver_id,
+            'user_role' => $request->user()->role
+        ]);
+
         // Allow if user is order owner, assigned driver, or admin
         if (
-            $order->user_id !== $userId &&
-            $order->driver_id !== $userId &&
+            $order->user_id != $userId &&
+            $order->driver_id != $userId &&
             $request->user()->role !== 'admin'
         ) {
+            \Log::error('MessageStore Forbidden', ['order' => $order->id]);
             return response()->json(['message' => 'Forbidden.'], 403);
         }
 

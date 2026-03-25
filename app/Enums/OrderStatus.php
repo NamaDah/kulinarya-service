@@ -8,6 +8,6 @@ enum OrderStatus: string
     case Confirmed = 'confirmed';
     case Processing = 'processing';
     case Shipping = 'shipping';
-    case Done = 'done';
+    case Delivered = 'delivered';
     case Cancelled = 'cancelled';
 }

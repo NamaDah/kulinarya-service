@@ -155,7 +155,7 @@ class OrderController extends Controller
             return response()->json(['message' => 'Order not found.'], 404);
         }
 
-        if ($order->status !== OrderStatus::Done) {
+        if ($order->status !== OrderStatus::Delivered) {
             return response()->json(['message' => 'You can only rate completed orders.'], 422);
         }
 

@@ -90,9 +90,9 @@ class DriverController extends Controller
             ], 403);
         }
 
-        $order->update(['status' => OrderStatus::Done]);
+        $order->update(['status' => OrderStatus::Delivered]);
 
-        event(new OrderStatusUpdated($order->id, OrderStatus::Done->value, $request->user()->name));
+        event(new OrderStatusUpdated($order->id, OrderStatus::Delivered->value, $request->user()->name));
 
         return response()->json([
             'message' => 'Order delivered successfully.',
