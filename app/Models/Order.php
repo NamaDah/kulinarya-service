@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Enums\OrderStatus;
+use App\Enums\PaymentStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -20,10 +22,15 @@ class Order extends Model
         'payment_reference',
         'snap_token',
         'total_amount',
+        'rating',
+        'driver_id',
     ];
 
     protected $casts = [
         'total_amount' => 'decimal:2',
+        'rating' => 'integer',
+        'status' => OrderStatus::class,
+        'payment_status' => PaymentStatus::class,
     ];
 
     /**
@@ -32,6 +39,14 @@ class Order extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Get the assigned driver.
+     */
+    public function driver(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'driver_id');
     }
 
     /**
@@ -53,6 +68,14 @@ class Order extends Model
     }
 
     /**
+     * Get the messages for this order.
+     */
+    public function messages(): HasMany
+    {
+        return $this->hasMany(Message::class);
+    }
+
+    /**
      * Check if this order belongs to the given user.
      */
     public function belongsToUser(int $userId): bool
@@ -61,14 +84,22 @@ class Order extends Model
     }
 
     /**
+     * Rate the order (1-5 stars).
+     */
+    public function rate(int $stars): void
+    {
+        $this->update(['rating' => $stars]);
+    }
+
+    /**
      * Mark as paid.
      */
     public function markAsPaid(string $paymentReference): void
     {
         $this->update([
-            'payment_status' => 'paid',
+            'payment_status' => PaymentStatus::Paid,
             'payment_reference' => $paymentReference,
-            'status' => 'confirmed',
+            'status' => OrderStatus::Confirmed,
         ]);
     }
 }

@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\OrderStatus;
+use App\Enums\PaymentStatus;
 use App\Events\PaymentStatusUpdated;
 use App\Models\Order;
 use App\Services\PaymentService;
@@ -44,7 +46,7 @@ class PaymentWebhookController extends Controller
         }
 
         // Idempotency: skip if already in a terminal state
-        if (in_array($order->payment_status, ['paid', 'failed'])) {
+        if (in_array($order->payment_status, [PaymentStatus::Paid, PaymentStatus::Failed])) {
             return response()->json(['message' => 'Already processed.']);
         }
 
@@ -52,24 +54,24 @@ class PaymentWebhookController extends Controller
         if ($transactionStatus === 'capture' || $transactionStatus === 'settlement') {
             if ($fraudStatus === 'accept' || $transactionStatus === 'settlement') {
                 $order->update([
-                    'payment_status' => 'paid',
-                    'status' => 'confirmed',
+                    'payment_status' => PaymentStatus::Paid,
+                    'status' => OrderStatus::Confirmed,
                 ]);
             }
         } elseif ($transactionStatus === 'pending') {
             $order->update([
-                'payment_status' => 'unpaid',
-                'status' => 'pending',
+                'payment_status' => PaymentStatus::Unpaid,
+                'status' => OrderStatus::Pending,
             ]);
         } elseif (in_array($transactionStatus, ['deny', 'cancel'])) {
             $order->update([
-                'payment_status' => 'failed',
-                'status' => 'cancelled',
+                'payment_status' => PaymentStatus::Failed,
+                'status' => OrderStatus::Cancelled,
             ]);
         } elseif ($transactionStatus === 'expire') {
             $order->update([
-                'payment_status' => 'expired',
-                'status' => 'cancelled',
+                'payment_status' => PaymentStatus::Expired,
+                'status' => OrderStatus::Cancelled,
             ]);
         }
 

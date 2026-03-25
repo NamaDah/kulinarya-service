@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Enums\OrderStatus;
 use App\Models\Order;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\Rule;
 
 class AdminOrderController extends Controller
 {
@@ -36,7 +38,7 @@ class AdminOrderController extends Controller
      */
     public function show(Order $order): JsonResponse
     {
-        $order->load(['user', 'orderProducts.product']);
+        $order->load(['user', 'driver', 'orderProducts.product']);
 
         return response()->json([
             'id' => $order->id,
@@ -45,10 +47,15 @@ class AdminOrderController extends Controller
                 'name' => $order->user->name,
                 'email' => $order->user->email,
             ] : null,
+            'driver' => $order->driver ? [
+                'id' => $order->driver->id,
+                'name' => $order->driver->name,
+            ] : null,
             'status' => $order->status,
             'payment_status' => $order->payment_status,
             'payment_reference' => $order->payment_reference,
             'total_amount' => $order->total_amount,
+            'rating' => $order->rating,
             'items' => $order->orderProducts->map(fn ($op) => [
                 'id' => $op->id,
                 'product_id' => $op->product_id,
@@ -68,7 +75,7 @@ class AdminOrderController extends Controller
     public function updateStatus(Request $request, Order $order): JsonResponse
     {
         $request->validate([
-            'status' => ['required', 'in:pending,processing,confirmed,shipped,delivered,cancelled'],
+            'status' => ['required', Rule::in(OrderStatus::cases())],
         ]);
 
         $order->update([

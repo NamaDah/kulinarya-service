@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\OrderStatus;
 use App\Http\Requests\CheckoutRequest;
 use App\Models\Order;
 use App\Models\Product;
@@ -9,6 +10,7 @@ use App\Services\PaymentService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 
 class OrderController extends Controller
 {
@@ -42,7 +44,7 @@ class OrderController extends Controller
             $order = Order::create([
                 'user_id' => $user->id,
                 'address' => $address,
-                'status' => 'pending',
+                'status' => OrderStatus::Pending,
                 'payment_status' => 'unpaid',
                 'total_amount' => 0,
             ]);
@@ -116,7 +118,7 @@ class OrderController extends Controller
             return response()->json(['message' => 'Order not found.'], 404);
         }
 
-        $order->load('orderProducts.product');
+        $order->load('orderProducts.product', 'driver');
 
         return response()->json([
             'id' => $order->id,
@@ -126,6 +128,11 @@ class OrderController extends Controller
             'payment_reference' => $order->payment_reference,
             'snap_token' => $order->snap_token,
             'total_amount' => $order->total_amount,
+            'rating' => $order->rating,
+            'driver' => $order->driver ? [
+                'id' => $order->driver->id,
+                'name' => $order->driver->name,
+            ] : null,
             'items' => $order->orderProducts->map(fn ($op) => [
                 'id' => $op->id,
                 'product_id' => $op->product_id,
@@ -136,6 +143,35 @@ class OrderController extends Controller
             ]),
             'created_at' => $order->created_at,
             'updated_at' => $order->updated_at,
+        ]);
+    }
+
+    /**
+     * Rate a completed order (1-5 stars).
+     */
+    public function rate(Request $request, Order $order): JsonResponse
+    {
+        if (! $order->belongsToUser($request->user()->id)) {
+            return response()->json(['message' => 'Order not found.'], 404);
+        }
+
+        if ($order->status !== OrderStatus::Done) {
+            return response()->json(['message' => 'You can only rate completed orders.'], 422);
+        }
+
+        if ($order->rating) {
+            return response()->json(['message' => 'You have already rated this order.'], 422);
+        }
+
+        $request->validate([
+            'rating' => ['required', 'integer', 'min:1', 'max:5'],
+        ]);
+
+        $order->rate($request->input('rating'));
+
+        return response()->json([
+            'message' => 'Thank you for your rating!',
+            'rating' => $order->rating,
         ]);
     }
 }
