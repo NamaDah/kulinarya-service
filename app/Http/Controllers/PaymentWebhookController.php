@@ -55,7 +55,7 @@ class PaymentWebhookController extends Controller
             if ($fraudStatus === 'accept' || $transactionStatus === 'settlement') {
                 $order->update([
                     'payment_status' => PaymentStatus::Paid,
-                    'status' => OrderStatus::Confirmed,
+                    'status' => OrderStatus::Processing,
                 ]);
             }
         } elseif ($transactionStatus === 'pending') {
