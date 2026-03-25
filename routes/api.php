@@ -7,6 +7,7 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PaymentWebhookController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\RecipeController;
+use App\Http\Controllers\GoogleAuthController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -24,6 +25,10 @@ Route::get('/products/{slug}', [ProductController::class, 'show']);
 Route::get('/recipes', [RecipeController::class, 'index']);
 Route::get('/recipes/featured', [RecipeController::class, 'featured']);
 Route::get('/recipes/{slug}', [RecipeController::class, 'show']);
+
+// Google OAuth
+Route::get('/auth/google/redirect', [GoogleAuthController::class, 'redirect']);
+Route::get('/auth/google/callback', [GoogleAuthController::class, 'callback']);
 
 // Payment webhook (no auth — called by Midtrans)
 Route::post('/payment/webhook', [PaymentWebhookController::class, 'handle']);
