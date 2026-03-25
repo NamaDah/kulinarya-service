@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Order;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -61,6 +62,7 @@ class PaymentService
         ];
 
         try {
+            /** @var Response $response */
             $response = Http::withBasicAuth($this->serverKey, '')
                 ->post($this->snapUrl, $payload);
 
