@@ -7,6 +7,7 @@ use App\Models\Message;
 use App\Models\Order;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class MessageController extends Controller
 {
@@ -57,8 +58,7 @@ class MessageController extends Controller
     public function store(Request $request, Order $order): JsonResponse
     {
         $userId = $request->user()->id;
-
-        \Log::info('MessageController@store called', [
+        Log::info('MessageController@store called', [
             'userId' => $userId,
             'order_user_id' => $order->user_id,
             'order_driver_id' => $order->driver_id,
@@ -71,7 +71,7 @@ class MessageController extends Controller
             $order->driver_id != $userId &&
             $request->user()->role !== 'admin'
         ) {
-            \Log::error('MessageStore Forbidden', ['order' => $order->id]);
+            Log::error('MessageStore Forbidden', ['order' => $order->id]);
             return response()->json(['message' => 'Forbidden.'], 403);
         }
 
