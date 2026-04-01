@@ -102,4 +102,37 @@ class DriverController extends Controller
             ],
         ]);
     }
+
+    /**
+     * List completed (delivered) orders for the authenticated driver — order history.
+     */
+    public function history(Request $request): JsonResponse
+    {
+        $orders = $request->user()
+            ->driverOrders()
+            ->with('orderProducts.product', 'user')
+            ->where('status', OrderStatus::Delivered)
+            ->orderByDesc('updated_at')
+            ->paginate(15);
+
+        return response()->json($orders);
+    }
+
+    /**
+     * Get the driver's profile with accumulated rating.
+     */
+    public function profile(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        return response()->json([
+            'id' => $user->id,
+            'name' => $user->name,
+            'average_rating' => $user->average_rating,
+            'total_ratings' => $user->total_ratings,
+            'total_deliveries' => $user->driverOrders()
+                ->where('status', OrderStatus::Delivered)
+                ->count(),
+        ]);
+    }
 }

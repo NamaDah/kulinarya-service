@@ -48,8 +48,10 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::prefix('driver')->middleware(['auth:sanctum', 'driver'])->group(function () {
     Route::get('orders', [DriverController::class, 'index']);
     Route::get('orders/available', [DriverController::class, 'availableOrders']);
+    Route::get('orders/history', [DriverController::class, 'history']);
     Route::post('orders/{order}/pickup', [DriverController::class, 'pickupOrder']);
     Route::post('orders/{order}/deliver', [DriverController::class, 'deliverOrder']);
+    Route::get('profile', [DriverController::class, 'profile']);
 });
 
 // Admin API routes

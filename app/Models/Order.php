@@ -89,6 +89,11 @@ class Order extends Model
     public function rate(int $stars): void
     {
         $this->update(['rating' => $stars]);
+
+        // Recalculate the driver's accumulated rating
+        if ($this->driver_id && $this->driver) {
+            $this->driver->recalculateRating();
+        }
     }
 
     /**
