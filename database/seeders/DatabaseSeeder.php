@@ -24,6 +24,8 @@ class DatabaseSeeder extends Seeder
             'email' => 'test@example.com',
         ]);
 
+        
+
         // ── Categories ──────────────────────────────────────────────
         $chinese = Category::create([
             'name' => 'Chinese',
